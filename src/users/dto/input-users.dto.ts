@@ -15,6 +15,9 @@ export class InputCreateUsersDto {
   password: string
 
   @Field((type) => String)
+  role: string
+
+  @Field((type) => String)
   address: string
 
   @Field((type) => String)

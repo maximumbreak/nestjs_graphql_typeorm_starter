@@ -32,6 +32,10 @@ export class UsersEntity {
 
   @Column()
   @Field((type) => String)
+  role: string
+
+  @Column()
+  @Field((type) => String)
   address: string
 
   @Column()

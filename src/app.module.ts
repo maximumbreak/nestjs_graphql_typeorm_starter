@@ -7,6 +7,9 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { EnvModule } from './env/env.module'
 import { EnvService } from './env/env.service'
 import { UsersEntity } from './users/entity/users.entity'
+import { AuthModule } from './auth/auth.module'
+import { APP_GUARD } from '@nestjs/core'
+import { RolesGuard } from './auth/roles.guard'
 
 const config = new EnvService().read()
 
@@ -30,8 +33,15 @@ const config = new EnvService().read()
       entities: [UsersEntity],
     }),
     UsersModule,
+    AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: RolesGuard,
+    // },
+  ],
 })
 export class AppModule {}

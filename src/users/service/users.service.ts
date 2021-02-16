@@ -8,6 +8,14 @@ import { UsersRepository } from '../repository/user.repository'
 export class UsersService {
   constructor(private readonly usersRepository: UsersRepository) {}
 
+  async findUserById(id: string): Promise<UsersEntity> {
+    return await this.usersRepository.findOne({
+      where: {
+        id,
+      },
+    })
+  }
+
   async findUserByEmail(email: string): Promise<UsersEntity> {
     return await this.usersRepository.findOne({
       where: {

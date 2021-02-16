@@ -2,12 +2,22 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type TokensEntity {
+  id: ID
+  userId: String!
+  accessToken: String!
+  refreshToken: String
+  created: String
+  updated: String
+}
+
 type UsersEntity {
   id: ID!
   email: String!
   password: String!
   firstName: String!
   lastName: String!
+  role: String!
   address: String!
   subDistrict: String!
   district: String!
@@ -19,10 +29,12 @@ type UsersEntity {
 
 type Query {
   getUsers(email: String!): UsersEntity!
+  getUsersFromAdmin(email: String!): UsersEntity!
 }
 
 type Mutation {
   createUser(input: InputCreateUsers!): UsersEntity!
+  login(password: String!, email: String!): TokensEntity!
 }
 
 input InputCreateUsers {
@@ -30,6 +42,7 @@ input InputCreateUsers {
   firstName: String!
   lastName: String!
   password: String!
+  role: String!
   address: String!
   subDistrict: String!
   district: String!
