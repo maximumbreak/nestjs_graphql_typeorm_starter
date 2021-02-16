@@ -29,7 +29,7 @@ const config = new EnvService().read()
       username: config.DB_USER,
       password: config.DB_PASSWORD,
       database: config.DB_NAME,
-      synchronize: true,
+      synchronize: config.DB_SYNC,
       entities: [UsersEntity],
     }),
     UsersModule,

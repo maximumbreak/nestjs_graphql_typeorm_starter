@@ -10,6 +10,9 @@ import { User } from 'src/auth/auth.decorator'
 import { Role } from 'src/auth/role.enum'
 import { Roles } from 'src/auth/roles.decorator'
 import { RolesGuard } from 'src/auth/roles.guard'
+import { createDecipheriv, randomBytes, scrypt } from 'crypto'
+import { promisify } from 'util'
+import * as bcrypt from 'bcrypt'
 
 @Resolver('Users')
 export class UsersResolver {
@@ -52,6 +55,12 @@ export class UsersResolver {
     @Args('password') password: string,
   ): Promise<TokensEntity> {
     const user = await this.usersService.findUserByEmail(email)
+
+    const decryptedText = this.usersService.decrypt(user.password)
+
+    const isMatch = await bcrypt.compare(password, decryptedText)
+    console.log('isMatch', isMatch, decryptedText)
+
     const payload = { userId: user.id, sub: user.id }
     return {
       userId: user.id,

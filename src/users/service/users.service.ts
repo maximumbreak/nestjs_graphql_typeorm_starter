@@ -1,14 +1,20 @@
 import { Injectable } from '@nestjs/common'
-import { createCipheriv, randomBytes, scrypt } from 'crypto'
+import * as crypto from 'crypto'
 import { promisify } from 'util'
 import * as bcrypt from 'bcrypt'
 import { v4 as uuidv4 } from 'uuid'
 import { InputCreateUsersDto } from '../dto/input-users.dto'
 import { UsersEntity } from '../entity/users.entity'
 import { UsersRepository } from '../repository/user.repository'
+import { EnvService } from 'src/env/env.service'
+
+const config = new EnvService().read()
 
 @Injectable()
 export class UsersService {
+  ENCRYPTION_KEY = config.ENCRYPTION_KEY // Must be 256 bits (32 characters)
+  IV_LENGTH = 16 // For AES, this is always 16
+
   constructor(private readonly usersRepository: UsersRepository) {}
 
   async findUserById(id: string): Promise<UsersEntity> {
@@ -44,7 +50,8 @@ export class UsersService {
 
     // // The key length is dependent on the algorithm.
     // // In this case for aes256, it is 32 bytes.
-    // const key = (await promisify(scrypt)(password, 'salt', 32)) as Buffer
+    // const salt = await bcrypt.genSalt()
+    // const key = (await promisify(scrypt)(password, salt, 32)) as Buffer
     // const cipher = createCipheriv('aes-256-ctr', key, iv)
 
     // const textToEncrypt = 'Nest'
@@ -52,20 +59,48 @@ export class UsersService {
     //   cipher.update(textToEncrypt),
     //   cipher.final(),
     // ])
-
     const saltOrRounds = 10
-    const hash = await bcrypt.hash(input.password, saltOrRounds)
-    const salt = await bcrypt.genSalt()
-    console.log(hash)
+    const encryptedText = this.encrypt(input.password)
+
+    const hash = await bcrypt.hash(encryptedText, saltOrRounds)
 
     const newUser: UsersEntity = await this.usersRepository.create({
       id: uuidv4(),
-      password: hash,
-      salt: salt,
       ...input,
+      password: hash,
     })
     this.usersRepository.save({ ...newUser })
 
     return newUser
+  }
+
+  encrypt(text) {
+    let iv = crypto.randomBytes(this.IV_LENGTH)
+    let cipher = crypto.createCipheriv(
+      'aes-256-ctr',
+      Buffer.from(this.ENCRYPTION_KEY),
+      iv,
+    )
+    let encrypted = cipher.update(text)
+
+    encrypted = Buffer.concat([encrypted, cipher.final()])
+
+    return iv.toString('hex') + ':' + encrypted.toString('hex')
+  }
+
+  decrypt(text) {
+    let textParts = text.split(':')
+    let iv = Buffer.from(textParts.shift(), 'hex')
+    let encryptedText = Buffer.from(textParts.join(':'), 'hex')
+    let decipher = crypto.createDecipheriv(
+      'aes-256-ctr',
+      Buffer.from(this.ENCRYPTION_KEY),
+      iv,
+    )
+    let decrypted = decipher.update(encryptedText)
+
+    decrypted = Buffer.concat([decrypted, decipher.final()])
+
+    return decrypted.toString()
   }
 }

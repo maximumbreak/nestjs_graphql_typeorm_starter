@@ -5,6 +5,7 @@ export interface EnvData {
   // application
   APP_ENV: string
   APP_DEBUG: boolean
+  APP_PORT: number
 
   // database
   DB_TYPE: 'mysql' | 'mariadb'
@@ -13,6 +14,9 @@ export interface EnvData {
   DB_PORT?: number
   DB_USER: string
   DB_PASSWORD: string
+  DB_SYNC: boolean
+
+  ENCRYPTION_KEY: string
 }
 
 export class EnvService {
@@ -27,6 +31,8 @@ export class EnvService {
     data.APP_ENV = environment
     data.APP_DEBUG = data.APP_DEBUG === 'true' ? true : false
     data.DB_PORT = parseInt(data.DB_PORT)
+    data.APP_PORT = parseInt(data.APP_PORT) || 3000
+    data.DB_SYNC = data.DB_SYNC === 'true' ? true : false
 
     this.vars = data as EnvData
   }
