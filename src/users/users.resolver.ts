@@ -56,7 +56,10 @@ export class UsersResolver {
   ): Promise<TokensEntity> {
     const user = await this.usersService.findUserByEmail(email)
 
-    const decryptedText = this.usersService.decrypt(user.password)
+    const decryptedText = await this.usersService.decrypt(
+      user.password,
+      user.salt,
+    )
 
     const isMatch = await bcrypt.compare(password, decryptedText)
     console.log('isMatch', isMatch, decryptedText)

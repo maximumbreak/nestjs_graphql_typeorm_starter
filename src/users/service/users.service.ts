@@ -50,8 +50,12 @@ export class UsersService {
 
     // // The key length is dependent on the algorithm.
     // // In this case for aes256, it is 32 bytes.
-    // const salt = await bcrypt.genSalt()
-    // const key = (await promisify(scrypt)(password, salt, 32)) as Buffer
+    const salt = await bcrypt.genSalt()
+    const key = (await promisify(crypto.scrypt)(
+      this.ENCRYPTION_KEY,
+      salt,
+      32,
+    )) as Buffer
     // const cipher = createCipheriv('aes-256-ctr', key, iv)
 
     // const textToEncrypt = 'Nest'
@@ -60,7 +64,7 @@ export class UsersService {
     //   cipher.final(),
     // ])
     const saltOrRounds = 10
-    const encryptedText = this.encrypt(input.password)
+    const encryptedText = this.encrypt(input.password, key)
 
     const hash = await bcrypt.hash(encryptedText, saltOrRounds)
 
@@ -68,19 +72,16 @@ export class UsersService {
       id: uuidv4(),
       ...input,
       password: hash,
+      salt,
     })
     this.usersRepository.save({ ...newUser })
 
     return newUser
   }
 
-  encrypt(text) {
+  encrypt(text: string, key: Buffer) {
     let iv = crypto.randomBytes(this.IV_LENGTH)
-    let cipher = crypto.createCipheriv(
-      'aes-256-ctr',
-      Buffer.from(this.ENCRYPTION_KEY),
-      iv,
-    )
+    let cipher = crypto.createCipheriv('aes-256-ctr', key, iv)
     let encrypted = cipher.update(text)
 
     encrypted = Buffer.concat([encrypted, cipher.final()])
@@ -88,15 +89,16 @@ export class UsersService {
     return iv.toString('hex') + ':' + encrypted.toString('hex')
   }
 
-  decrypt(text) {
+  async decrypt(text: string, salt: string) {
+    let iv = crypto.randomBytes(this.IV_LENGTH)
+    const key = (await promisify(crypto.scrypt)(
+      this.ENCRYPTION_KEY,
+      salt,
+      32,
+    )) as Buffer
     let textParts = text.split(':')
-    let iv = Buffer.from(textParts.shift(), 'hex')
     let encryptedText = Buffer.from(textParts.join(':'), 'hex')
-    let decipher = crypto.createDecipheriv(
-      'aes-256-ctr',
-      Buffer.from(this.ENCRYPTION_KEY),
-      iv,
-    )
+    let decipher = crypto.createDecipheriv('aes-256-ctr', key, iv)
     let decrypted = decipher.update(encryptedText)
 
     decrypted = Buffer.concat([decrypted, decipher.final()])
