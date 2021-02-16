@@ -1,0 +1,38 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type UsersEntity {
+  id: ID!
+  email: String!
+  password: String!
+  firstName: String!
+  lastName: String!
+  address: String!
+  subDistrict: String!
+  district: String!
+  province: String!
+  postalCode: String!
+  created: String!
+  updated: String
+}
+
+type Query {
+  getUsers(email: String!): UsersEntity!
+}
+
+type Mutation {
+  createUser(input: InputCreateUsers!): UsersEntity!
+}
+
+input InputCreateUsers {
+  email: String!
+  firstName: String!
+  lastName: String!
+  password: String!
+  address: String!
+  subDistrict: String!
+  district: String!
+  province: String!
+  postalCode: String!
+}
