@@ -15,6 +15,7 @@ type UsersEntity {
   id: ID!
   email: String!
   password: String!
+  salt: String!
   firstName: String!
   lastName: String!
   role: String!
