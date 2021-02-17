@@ -1,15 +1,9 @@
 import { Injectable } from '@nestjs/common'
-import * as crypto from 'crypto'
-import * as CryptoJS from 'crypto-js'
-import { promisify } from 'util'
 import * as bcrypt from 'bcrypt'
 import { v4 as uuidv4 } from 'uuid'
 import { InputCreateUsersDto } from '../dto/input-users.dto'
 import { UsersEntity } from '../entity/users.entity'
 import { UsersRepository } from '../repository/user.repository'
-import { EnvService } from 'src/env/env.service'
-
-const config = new EnvService().read()
 
 @Injectable()
 export class UsersService {
