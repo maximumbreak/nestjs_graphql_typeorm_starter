@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common'
 import { AuthService } from './auth.service'
-import { UsersRepository } from 'src/users/repository/user.repository'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { JwtStrategy } from './jwt.strategy'
-import { UsersModule } from 'src/users/users.module'
+import { UsersModule } from '../modules/users/users.module'
+import { UsersRepository } from '../modules/users/repository/user.repository'
 
 @Module({
   imports: [TypeOrmModule.forFeature([UsersRepository]), UsersModule],

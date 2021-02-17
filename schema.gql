@@ -2,15 +2,6 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type TokensEntity {
-  id: ID
-  userId: String!
-  accessToken: String!
-  refreshToken: String
-  created: String
-  updated: String
-}
-
 type UsersEntity {
   id: ID!
   email: String!
@@ -27,6 +18,14 @@ type UsersEntity {
   updated: String
 }
 
+type TokensDto {
+  userId: String!
+  accessToken: String!
+  refreshToken: String!
+  tokenType: String!
+  expireIn: Float!
+}
+
 type Query {
   getUsers(email: String!): UsersEntity!
   getUsersFromAdmin(email: String!): UsersEntity!
@@ -34,7 +33,7 @@ type Query {
 
 type Mutation {
   createUser(input: InputCreateUsers!): UsersEntity!
-  login(password: String!, email: String!): TokensEntity!
+  login(password: String!, email: String!): TokensDto!
 }
 
 input InputCreateUsers {

@@ -20,11 +20,15 @@ export class TokensEntity {
 
   @Column()
   @Field((type) => String)
-  accessToken: string
+  refreshToken?: string
 
   @Column()
-  @Field((type) => String)
-  refreshToken?: string
+  @Field((type) => Boolean)
+  isRevoked?: boolean
+
+  @Column()
+  @Field((type) => Date)
+  expires?: Date
 
   @CreateDateColumn({ type: 'timestamp' })
   @Field((type) => String)

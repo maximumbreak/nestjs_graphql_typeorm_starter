@@ -11,12 +11,15 @@ import { Role } from 'src/auth/role.enum'
 import { Roles } from 'src/auth/roles.decorator'
 import { RolesGuard } from 'src/auth/roles.guard'
 import * as bcrypt from 'bcrypt'
+import { TokenService } from './service/token.service'
+import { TokensDto } from './dto/token.dto'
 
 @Resolver('Users')
 export class UsersResolver {
   constructor(
     private readonly usersService: UsersService,
     private jwtService: JwtService,
+    private tokenService: TokenService,
   ) {}
 
   @UseGuards(GqlAuthGuard)
@@ -47,18 +50,25 @@ export class UsersResolver {
     return this.usersService.insertUser(input)
   }
 
-  @Mutation((returns) => TokensEntity)
+  @Mutation((returns) => TokensDto)
   async login(
     @Args('email') email: string,
     @Args('password') password: string,
-  ): Promise<TokensEntity> {
+  ): Promise<TokensDto> {
     const user = await this.usersService.findUserByEmail(email)
     const isMatch = await bcrypt.compare(password, user.password)
     const payload = { userId: user.id, sub: user.id }
+    const refreshToken = await this.tokenService.generateRefreshToken(
+      user,
+      60 * 60 * 24 * 30,
+    )
     if (isMatch) {
       return {
         userId: user.id,
         accessToken: this.jwtService.sign(payload),
+        refreshToken,
+        tokenType: 'Bearer',
+        expireIn: 300,
       }
     }
     throw new Error('Email or Password incorrect')

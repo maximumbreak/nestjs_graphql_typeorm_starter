@@ -2,14 +2,16 @@ import { Module } from '@nestjs/common'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { GraphQLModule } from '@nestjs/graphql'
-import { UsersModule } from './users/users.module'
+import { UsersModule } from './modules/users/users.module'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { EnvModule } from './env/env.module'
 import { EnvService } from './env/env.service'
-import { UsersEntity } from './users/entity/users.entity'
+import { UsersEntity } from './modules/users/entity/users.entity'
 import { AuthModule } from './auth/auth.module'
 import { APP_GUARD } from '@nestjs/core'
 import { RolesGuard } from './auth/roles.guard'
+import { ModulesModule } from './modules/modules.module'
+import { TokensEntity } from './modules/users/entity/token.entity'
 
 const config = new EnvService().read()
 
@@ -30,10 +32,10 @@ const config = new EnvService().read()
       password: config.DB_PASSWORD,
       database: config.DB_NAME,
       synchronize: config.DB_SYNC,
-      entities: [UsersEntity],
+      entities: [UsersEntity, TokensEntity],
     }),
-    UsersModule,
     AuthModule,
+    ModulesModule,
   ],
   controllers: [AppController],
   providers: [
