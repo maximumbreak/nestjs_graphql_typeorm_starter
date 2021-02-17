@@ -10,8 +10,6 @@ import { User } from 'src/auth/auth.decorator'
 import { Role } from 'src/auth/role.enum'
 import { Roles } from 'src/auth/roles.decorator'
 import { RolesGuard } from 'src/auth/roles.guard'
-import { createDecipheriv, randomBytes, scrypt } from 'crypto'
-import { promisify } from 'util'
 import * as bcrypt from 'bcrypt'
 
 @Resolver('Users')
