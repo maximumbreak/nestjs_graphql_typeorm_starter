@@ -55,19 +55,14 @@ export class UsersResolver {
     @Args('password') password: string,
   ): Promise<TokensEntity> {
     const user = await this.usersService.findUserByEmail(email)
-
-    const decryptedText = await this.usersService.decrypt(
-      user.password,
-      user.salt,
-    )
-
-    const isMatch = await bcrypt.compare(password, decryptedText)
-    console.log('isMatch', isMatch, decryptedText)
-
+    const isMatch = await bcrypt.compare(password, user.password)
     const payload = { userId: user.id, sub: user.id }
-    return {
-      userId: user.id,
-      accessToken: this.jwtService.sign(payload),
+    if (isMatch) {
+      return {
+        userId: user.id,
+        accessToken: this.jwtService.sign(payload),
+      }
     }
+    throw new Error('Email or Password incorrect')
   }
 }

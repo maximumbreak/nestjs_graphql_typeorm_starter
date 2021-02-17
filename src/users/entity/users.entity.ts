@@ -24,10 +24,6 @@ export class UsersEntity {
 
   @Column()
   @Field((type) => String)
-  salt: string
-
-  @Column()
-  @Field((type) => String)
   firstName: string
 
   @Column()
