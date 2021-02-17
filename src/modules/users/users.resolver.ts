@@ -1,6 +1,5 @@
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql'
 import { InputCreateUsersDto } from './dto/input-users.dto'
-import { TokensEntity } from './entity/token.entity'
 import { UsersEntity } from './entity/users.entity'
 import { UsersService } from './service/users.service'
 import { JwtService } from '@nestjs/jwt'
@@ -72,5 +71,31 @@ export class UsersResolver {
       }
     }
     throw new Error('Email or Password incorrect')
+  }
+
+  @Mutation((returns) => TokensDto)
+  async refreshToken(@Args('token') token: string): Promise<TokensDto> {
+    try {
+      const resultToken = await this.tokenService.findTokenByRefreshToken(token)
+      if (!resultToken.isRevoked) {
+        await this.tokenService.revokedTokenById(resultToken.id)
+        const user = await this.usersService.findUserById(resultToken.userId)
+        const payload = { userId: user.id, sub: user.id }
+        const refreshToken = await this.tokenService.generateRefreshToken(
+          user,
+          60 * 60 * 24 * 30,
+        )
+        return {
+          userId: user.id,
+          accessToken: this.jwtService.sign(payload),
+          refreshToken,
+          tokenType: 'Bearer',
+          expireIn: 300,
+        }
+      }
+      throw new Error('token does not exits')
+    } catch (e) {
+      throw new Error('token incorrect')
+    }
   }
 }

@@ -41,6 +41,26 @@ export class TokenService {
     })
   }
 
+  public async findTokenByRefreshToken(
+    refreshToken: string,
+  ): Promise<TokensEntity | null> {
+    return this.tokenRepository.findOne({
+      where: {
+        refreshToken,
+      },
+    })
+  }
+
+  public async revokedTokenById(id: string): Promise<TokensEntity | null> {
+    const tokenRepo = await this.tokenRepository.findOne({
+      where: {
+        id,
+      },
+    })
+
+    return this.tokenRepository.save({ ...tokenRepo, isRevoked: true })
+  }
+
   public async generateRefreshToken(
     user: UsersEntity,
     expiresIn: number,

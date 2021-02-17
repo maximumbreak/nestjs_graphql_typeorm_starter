@@ -34,6 +34,7 @@ type Query {
 type Mutation {
   createUser(input: InputCreateUsers!): UsersEntity!
   login(password: String!, email: String!): TokensDto!
+  refreshToken(token: String!): TokensDto!
 }
 
 input InputCreateUsers {
